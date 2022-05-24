@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "farlink",
+  "name": "farlink - peer2peer data exchange",
   "icons": [
     {
       "src": "favicon.ico",
