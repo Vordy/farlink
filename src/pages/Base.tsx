@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import { Box, Button, Card, Flex, Link, Text } from "rebass";
 
 import copy from "copy-to-clipboard";
+import { QR } from "../encoding/QR";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -51,7 +52,7 @@ export const Base = () => {
           border: "3px solid #C8C8C8",
           borderRadius: "5px",
           width: "100%",
-          mx: "10px",
+          mx: "1",
           marginTop: "10px",
           maxWidth: "512px",
         }}
@@ -69,31 +70,84 @@ export const Base = () => {
               </Text>
             )}
           </Flex>
-          <Text>{"Purely Peer2Peer Data Exchange "}</Text>
-          <Text>{"Powered by encrypted WebRTC and unique IDs"}</Text>
-          <Text>{`Your ID is: ${token}`}</Text>
-          <Text>{`Your Link is:`}</Text>
-          <Text sx={{ display: "inline" }} color="dodgerblue">
-            Copy
-          </Text>
-          <Text>{`${link}`}</Text>
-          <Box
-            onClick={() => {
-              if (link) copy(link);
-            }}
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              background: "#363636",
-              border: "3px solid #C8C8C8",
-              borderRadius: "5px",
-              cursor: "pointer",
-              mx: "auto",
-            }}
-          >{`Click to Copy`}</Box>
+          <Text>{"Purely Peer2Peer Data Exchange"}</Text>
+          <Text>{"Powered by WebRTC and Unique IDs"}</Text>
+          <Text>{"Data is encrypted in flight"}</Text>
+          {token && <TextCopyAndQR title={`Your ID:`} text={token} />}
+          {link && <TextCopyAndQR title={`Easy-Peer Link:`} text={link} />}
         </Flex>
       </Card>
+    </Flex>
+  );
+};
+
+const TextCopyAndQR = ({ title, text }: { title: string; text: string }) => {
+  const [openQr, setOpenQr] = React.useState(false);
+
+  return (
+    <Flex
+      flexDirection={"column"}
+      sx={{
+        p: 1,
+        mt: 3,
+        background: "#363636",
+        border: "2px solid #C8C8C8",
+        borderRadius: "5px",
+      }}
+    >
+      <Text>{title}</Text>
+      <Flex
+        sx={{
+          width: "100%",
+          display: "flex",
+        }}
+      >
+        <Text
+          fontSize="1"
+          sx={{
+            p: 1,
+            flex: 1,
+            display: "flex",
+            overflow: "auto",
+            alignItems: "center",
+            background: "#363636",
+            border: "1px solid #C8C8C8",
+            borderRadius: "5px",
+            whiteSpace: "nowrap",
+          }}
+        >{`${text}`}</Text>
+        <Button
+          onClick={() => {
+            copy(text);
+          }}
+          fontSize="1"
+          sx={{
+            p: 1,
+            marginLeft: "1",
+            width: "auto",
+            background: "#404071",
+            border: "1px solid #C8C8C8",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >{`Copy`}</Button>
+        <Button
+          onClick={() => {
+            setOpenQr(!openQr);
+          }}
+          fontSize="1"
+          sx={{
+            p: 1,
+            marginLeft: "1",
+            width: "auto",
+            background: "#ec523b",
+            border: "1px solid #C8C8C8",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >{`QR`}</Button>
+      </Flex>
+      {openQr && <QR input={text} />}
     </Flex>
   );
 };
