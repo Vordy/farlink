@@ -1,7 +1,7 @@
 import { RouteObject } from "react-router";
 import { useRoutes } from "react-router-dom";
 import { Base } from "./pages/Base";
-import { Link } from "./pages/Link";
+import { EasyPeer } from "./pages/EasyPeer";
 
 const routes: RouteObject[] = [
   {
@@ -13,8 +13,8 @@ const routes: RouteObject[] = [
     element: <Base />,
   },
   {
-    path: "/link/:link",
-    element: <Link />,
+    path: "/peer/:source/to/:peer",
+    element: <EasyPeer />,
   },
 ];
 

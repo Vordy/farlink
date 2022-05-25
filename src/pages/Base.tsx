@@ -8,16 +8,18 @@ import { Box, Button, Card, Flex, Link, Text } from "rebass";
 
 import copy from "copy-to-clipboard";
 import { QR } from "../encoding/QR";
+import { usePeerManager } from "../peerlist/peer-manager";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "http://10.0.0.172:3000";
 
 export const Base = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const { nextPeerId } = usePeerManager(id);
+
   const [token, setToken] = React.useState<string | undefined>(undefined);
   const [link, setLink] = React.useState<string | undefined>(undefined);
-  const [peer, setPeer] = React.useState<Peer | undefined>(undefined);
 
   React.useEffect(() => {
     if (!token) {
@@ -29,19 +31,9 @@ export const Base = () => {
         setToken(id);
       }
     } else {
-      setLink(`${BASE_URL}/link/${token}`);
-      setPeer(new Peer(token));
+      setLink(`${BASE_URL}/peer/${token}/to/${nextPeerId}/`);
     }
-
-    if (peer) {
-    }
-
-    return () => {
-      if (peer) {
-        peer.destroy();
-      }
-    };
-  }, [id, token, navigate, peer]);
+  }, [id, token, nextPeerId, navigate]);
 
   return (
     <Flex justifyContent="center">
@@ -60,15 +52,6 @@ export const Base = () => {
         <Flex flexDirection={"column"} justifyContent="center">
           <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize={32}>Farl[ink]</Text>
-            {peer?.disconnected ? (
-              <Text fontSize={24} color="red">
-                [InAct]
-              </Text>
-            ) : (
-              <Text fontSize={24} color="green">
-                {`[Act]`}
-              </Text>
-            )}
           </Flex>
           <Text>{"Purely Peer2Peer Data Exchange"}</Text>
           <Text>{"Powered by WebRTC and Unique IDs"}</Text>
@@ -81,7 +64,13 @@ export const Base = () => {
   );
 };
 
-const TextCopyAndQR = ({ title, text }: { title: string; text: string }) => {
+export const TextCopyAndQR = ({
+  title,
+  text,
+}: {
+  title: string;
+  text: string;
+}) => {
   const [openQr, setOpenQr] = React.useState(false);
 
   return (
