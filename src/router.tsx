@@ -9,11 +9,11 @@ const routes: RouteObject[] = [
     element: <Base />,
   },
   {
-    path: "/:id",
+    path: "/from/:source",
     element: <Base />,
   },
   {
-    path: "/peer/:source/to/:peer",
+    path: "/from/:source/to/:peer",
     element: <EasyPeer />,
   },
 ];

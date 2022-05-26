@@ -8,59 +8,93 @@ import { Box, Button, Card, Flex, Link, Text } from "rebass";
 
 import copy from "copy-to-clipboard";
 import { QR } from "../encoding/QR";
-import { usePeerManager } from "../peerlist/peer-manager";
+import { usePeerManager } from "../peer-manager";
+import { PeerConnect } from "../components/PeerConnect";
+import { pButton, sButton } from "../styles/buttons";
 
-const BASE_URL = "http://10.0.0.172:3000";
+// const BASE_URL = "https://www.farl.ink";
+
+export const BaseCard = ({
+  children,
+  hide,
+  title,
+  subtext,
+}: {
+  children?: React.ReactNode | React.ReactNode[];
+  hide?: boolean;
+  title?: string;
+  subtext?: string;
+}) => {
+  return (
+    <Flex justifyContent="center">
+      <Card
+        sx={{
+          width: "100%",
+          maxWidth: "512px",
+          p: "2",
+          mx: "1",
+          mt: "2",
+          border: "3px solid #C8C8C8",
+          borderRadius: "5px",
+          background: "#161616",
+        }}
+      >
+        <Flex flexDirection={"column"} justifyContent="center">
+          {!hide && (
+            <>
+              <Flex justifyContent="space-between" alignItems="center">
+                {title ? (
+                  <Text fontSize={32}>{title}</Text>
+                ) : (
+                  <Text fontSize={32}>{`Farl[ink]`}</Text>
+                )}
+                {subtext && <Text fontSize={24}>{subtext}</Text>}
+              </Flex>
+              <Text>{"Direct Peer2Peer Encrypted Exchange"}</Text>
+              <Text>{"Powered by WebRTC and Unique IDs"}</Text>
+              <Text>{`Vordy was here 💖`}</Text>
+            </>
+          )}
+          {children}
+        </Flex>
+      </Card>
+    </Flex>
+  );
+};
 
 export const Base = () => {
-  const { id } = useParams();
+  const { source } = useParams();
   const navigate = useNavigate();
 
-  const { nextPeerId } = usePeerManager(id);
+  const peerManager = usePeerManager(source);
+
+  const { easyPeerId } = peerManager;
 
   const [token, setToken] = React.useState<string | undefined>(undefined);
   const [link, setLink] = React.useState<string | undefined>(undefined);
 
   React.useEffect(() => {
     if (!token) {
-      if (!id) {
+      if (!source) {
         // Navigate to valid token
-        const newPath = `${nanoid()}`;
-        navigate(newPath);
+        const newPath = `/from/${nanoid()}`;
+        navigate(newPath, { replace: true });
       } else {
-        setToken(id);
+        setToken(source);
       }
     } else {
-      setLink(`${BASE_URL}/peer/${token}/to/${nextPeerId}/`);
+      setLink(`${window.location.origin}/from/${easyPeerId}/to/${token}/`);
     }
-  }, [id, token, nextPeerId, navigate]);
+  }, [source, token, easyPeerId, navigate]);
 
   return (
-    <Flex justifyContent="center">
-      <Card
-        sx={{
-          background: "#161616",
-          p: "5px",
-          border: "3px solid #C8C8C8",
-          borderRadius: "5px",
-          width: "100%",
-          mx: "1",
-          marginTop: "10px",
-          maxWidth: "512px",
-        }}
-      >
-        <Flex flexDirection={"column"} justifyContent="center">
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize={32}>Farl[ink]</Text>
-          </Flex>
-          <Text>{"Purely Peer2Peer Data Exchange"}</Text>
-          <Text>{"Powered by WebRTC and Unique IDs"}</Text>
-          <Text>{"Data is encrypted in flight"}</Text>
-          {token && <TextCopyAndQR title={`Your ID:`} text={token} />}
-          {link && <TextCopyAndQR title={`Easy-Peer Link:`} text={link} />}
-        </Flex>
-      </Card>
-    </Flex>
+    <>
+      <BaseCard>
+        {token && <TextCopyAndQR title={`Your ID:`} text={token} />}
+        {link && <TextCopyAndQR title={`Easy-Peer Link:`} text={link} />}
+      </BaseCard>
+      <PeerConnect peerManager={peerManager} />
+    </>
   );
 };
 
@@ -110,32 +144,16 @@ export const TextCopyAndQR = ({
             copy(text);
           }}
           fontSize="1"
-          sx={{
-            p: 1,
-            marginLeft: "1",
-            width: "auto",
-            background: "#404071",
-            border: "1px solid #C8C8C8",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
+          sx={pButton}
         >{`Copy`}</Button>
-        <Button
-          onClick={() => {
-            setOpenQr(!openQr);
-          }}
-          fontSize="1"
-          sx={{
-            p: 1,
-            marginLeft: "1",
-            width: "auto",
-            background: "#ec523b",
-            border: "1px solid #C8C8C8",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >{`QR`}</Button>
       </Flex>
+      <Button
+        onClick={() => {
+          setOpenQr(!openQr);
+        }}
+        fontSize="1"
+        sx={sButton}
+      >{`QR`}</Button>
       {openQr && <QR input={text} />}
     </Flex>
   );
