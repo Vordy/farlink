@@ -5,13 +5,18 @@ import { Routes } from "./router";
 
 import { ThemeProvider } from "theme-ui";
 import { theme } from "./theme";
+import { NetState, usePeerNet } from "./components/PeerNetwork";
 
 const App = () => {
+  const PeerNet = usePeerNet();
+
   return (
     <ThemeProvider theme={theme}>
-      <Router>
-        <Routes />
-      </Router>
+      <NetState.Provider value={PeerNet}>
+        <Router>
+          <Routes />
+        </Router>
+      </NetState.Provider>
     </ThemeProvider>
   );
 };

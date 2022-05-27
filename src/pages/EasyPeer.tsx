@@ -1,22 +1,32 @@
-import { useParams } from "react-router";
+import React from "react";
+import { useNavigate, useParams } from "react-router";
 import { PeerConnect } from "../components/PeerConnect";
-import { usePeerManager } from "../peer-manager";
+import { NetState } from "../components/PeerNetwork";
 import { BaseCard, TextCopyAndQR } from "./Base";
+import { nanoid } from "nanoid";
 
 export const EasyPeer = () => {
   const { source, peer } = useParams();
+  const navigate = useNavigate();
 
-  const peerManager = usePeerManager(source, peer);
+  const { init, sourceId, peerId, setSourceId, setPeerId } =
+    React.useContext(NetState);
 
-  const { easyPeerId } = peerManager;
+  React.useEffect(() => {
+    if (!source || !peer) navigate(`/from/${nanoid()}`, { replace: true });
+    else if (!init && !sourceId) {
+      if (source !== sourceId) setSourceId(source);
+      if (peer !== peerId) setPeerId(peer);
+    }
+  }, [source, peer, init, sourceId, peerId, setSourceId, setPeerId, navigate]);
 
   return (
     <>
       <BaseCard subtext="[EasyPeer]">
-        {source && <TextCopyAndQR title={`Your ID:`} text={source} />}
-        {peer && <TextCopyAndQR title={`Source ID:`} text={peer} />}
+        {sourceId && <TextCopyAndQR title={`Your ID:`} text={sourceId} />}
+        {peerId && <TextCopyAndQR title={`Source ID:`} text={peerId} />}
       </BaseCard>
-      <PeerConnect peerManager={peerManager} hide />
+      <PeerConnect hide />
     </>
   );
 };

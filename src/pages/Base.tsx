@@ -1,16 +1,15 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 
-import { Peer } from "peerjs";
 import { nanoid } from "nanoid";
 
-import { Box, Button, Card, Flex, Link, Text } from "rebass";
+import { Button, Card, Flex, Text } from "rebass";
 
 import copy from "copy-to-clipboard";
-import { QR } from "../encoding/QR";
-import { usePeerManager } from "../peer-manager";
+import { QR } from "../components/QR";
 import { PeerConnect } from "../components/PeerConnect";
 import { pButton, sButton } from "../styles/buttons";
+import { NetState } from "../components/PeerNetwork";
 
 // const BASE_URL = "https://www.farl.ink";
 
@@ -66,34 +65,29 @@ export const Base = () => {
   const { source } = useParams();
   const navigate = useNavigate();
 
-  const peerManager = usePeerManager(source);
+  const { init, sourceId, peerId, setSourceId } = React.useContext(NetState);
 
-  const { easyPeerId } = peerManager;
-
-  const [token, setToken] = React.useState<string | undefined>(undefined);
-  const [link, setLink] = React.useState<string | undefined>(undefined);
+  const [easyPeerLink, setEasyPeerLink] = React.useState<string | undefined>(
+    undefined
+  );
 
   React.useEffect(() => {
-    if (!token) {
-      if (!source) {
-        // Navigate to valid token
-        const newPath = `/from/${nanoid()}`;
-        navigate(newPath, { replace: true });
-      } else {
-        setToken(source);
-      }
-    } else {
-      setLink(`${window.location.origin}/from/${easyPeerId}/to/${token}/`);
+    if (!source) navigate(`/from/${nanoid()}`, { replace: true });
+    else if (!init && !sourceId) {
+      setSourceId(source);
+      setEasyPeerLink(`${window.location.origin}/from/${peerId}/to/${source}/`);
     }
-  }, [source, token, easyPeerId, navigate]);
+  }, [source, init, sourceId, peerId, setSourceId, navigate]);
 
   return (
     <>
       <BaseCard>
-        {token && <TextCopyAndQR title={`Your ID:`} text={token} />}
-        {link && <TextCopyAndQR title={`Easy-Peer Link:`} text={link} />}
+        {sourceId && <TextCopyAndQR title={`Your ID:`} text={sourceId} />}
+        {easyPeerLink && (
+          <TextCopyAndQR title={`Easy-Peer Link:`} text={easyPeerLink} />
+        )}
       </BaseCard>
-      <PeerConnect peerManager={peerManager} />
+      <PeerConnect />
     </>
   );
 };

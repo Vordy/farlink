@@ -1,23 +1,17 @@
 import React from "react";
 
-import { Box, Button, Flex } from "rebass";
+import { Button, Flex } from "rebass";
 import { Input } from "@rebass/forms";
 
 import { BaseCard } from "../pages/Base";
-import { PeerManager } from "../peer-manager";
 import { pButton, sButton } from "../styles/buttons";
 
 import { CircleLoader } from "react-spinners";
 import { ValidationImage } from "./ValidationImage";
+import { NetState } from "./PeerNetwork";
 
-export const PeerConnect = ({
-  peerManager,
-  hide,
-}: {
-  peerManager: PeerManager;
-  hide?: boolean;
-}) => {
-  const { connecting, connected, connect } = peerManager;
+export const PeerConnect = ({ hide }: { hide?: boolean }) => {
+  const { connecting, connected, peerId, connect } = React.useContext(NetState);
 
   return (
     <>
@@ -44,17 +38,27 @@ export const PeerConnect = ({
                   type="url"
                   placeholder="Peer ID"
                 />
-                <Button sx={pButton} onClick={() => connect()}>
+                <Button
+                  sx={pButton}
+                  onClick={() => {
+                    if (peerId) connect(peerId);
+                  }}
+                >
                   Connect
                 </Button>
               </Flex>
             )}
-            <Button sx={sButton} onClick={() => connect()}>
+            <Button
+              sx={sButton}
+              onClick={() => {
+                if (peerId) connect(peerId);
+              }}
+            >
               EasyPeer Connect
             </Button>
           </Flex>
         )}
-        {connected && <ValidationImage peerManager={peerManager} />}
+        {connected && <ValidationImage />}
       </BaseCard>
     </>
   );
